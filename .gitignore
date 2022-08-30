@@ -1,3 +1,4 @@
+conf/dev.application.conf
 logs
 target
 /.bsp
