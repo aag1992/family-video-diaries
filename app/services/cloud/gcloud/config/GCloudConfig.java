@@ -1,4 +1,4 @@
-package services.gcloud.config;
+package services.cloud.gcloud.config;
 
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
