@@ -1,12 +1,11 @@
 package services.cloud.gcloud;
 
 
-import com.google.cloud.storage.BlobId;
-import com.google.cloud.storage.BlobInfo;
-import com.google.cloud.storage.Storage;
-import com.google.cloud.storage.StorageOptions;
+import com.google.cloud.storage.*;
 import com.google.inject.Inject;
-import model.file.upload.FileUploadDetails;
+import exceptions.VideoNotUploadedException;
+import model.video.upload.VideoSegmentingDetails;
+import model.video.upload.VideoUploadDetails;
 import play.Logger;
 import services.cloud.gcloud.config.GCloudConfig;
 import services.cloud.iCloudService;
@@ -26,14 +25,27 @@ public class GCloudAdapter implements iCloudService {
         this.config = config;
     }
 
-    public void upload(FileUploadDetails file) throws IOException {
+    public void upload(VideoUploadDetails file) throws IOException {
         Logger.of(GCloudAdapter.class).info("Starting file upload");
         Storage storage = StorageOptions.newBuilder().setProjectId(config.getProjectId()).build().getService();
         BlobId blobId = BlobId.of(config.getBucket(), file.getName());
         BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
         storage.create(blobInfo, Files.readAllBytes(Paths.get(file.getFile().getPath())));
         Logger.of(GCloudAdapter.class).debug("finished file upload");
+
     }
 
+    public void get(VideoSegmentingDetails segmentingDetails)
+            throws IOException, VideoNotUploadedException {
 
+        Storage storage = StorageOptions.newBuilder().setProjectId(config.getProjectId()).build().getService();
+        Blob blob = storage.get(BlobId.of(config.getBucket(), segmentingDetails.getVideoPath()));
+        if(blob.exists())      {
+            blob.downloadTo(Paths.get("/Users/amitaiguggenheim/Downloads/stam.mp4"));
+        }
+        else{
+            throw  new VideoNotUploadedException("Failed to find video in cloud");
+        }
+
+    }
 }
