@@ -21,7 +21,7 @@ public class GCloudAdapter implements iCloudService {
     private final GCloudConfig config;
 
     @Inject
-    public GCloudAdapter(GCloudConfig config)  {
+    public GCloudAdapter(GCloudConfig config) {
         this.config = config;
     }
 
@@ -35,17 +35,13 @@ public class GCloudAdapter implements iCloudService {
 
     }
 
-    public void get(VideoSegmentingDetails segmentingDetails)
-            throws IOException, VideoNotUploadedException {
-
+    public void download(VideoSegmentingDetails segmentingDetails, String targetPath) throws VideoNotUploadedException {
         Storage storage = StorageOptions.newBuilder().setProjectId(config.getProjectId()).build().getService();
         Blob blob = storage.get(BlobId.of(config.getBucket(), segmentingDetails.getVideoPath()));
-        if(blob.exists())      {
-            blob.downloadTo(Paths.get("/Users/amitaiguggenheim/Downloads/stam.mp4"));
+        if (blob.exists()) {
+            blob.downloadTo(Paths.get(targetPath));
+        } else {
+            throw new VideoNotUploadedException("Failed to find video in cloud");
         }
-        else{
-            throw  new VideoNotUploadedException("Failed to find video in cloud");
-        }
-
     }
 }

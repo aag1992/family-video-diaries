@@ -18,7 +18,7 @@ public class Module extends AbstractModule {
     @Provides
     protected GCloudAdapter GCloudAdapter() {
         Logger.of(Module.class).info("getting cloud adapter");
-        return new GCloudAdapter(new GCloudConfig(configuration));
+            return new GCloudAdapter(new GCloudConfig(configuration));
     }
 
 }

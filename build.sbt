@@ -17,8 +17,7 @@ libraryDependencies ++= Seq(
 libraryDependencies ++= Vector(
   "org.apache.ivy" % "ivy" % "2.4.0",
   "com.google.cloud" % "google-cloud-storage" % "1.38.0",
-  "org.javatuples" % "javatuples" % "1.2"
-)
+  "org.javatuples" % "javatuples" % "1.2")
 
 libraryDependencies += "com.amazonaws" % "aws-java-sdk" % "1.11.313"
 libraryDependencies += ("com.google.inject.extensions" % "guice-multibindings" % "4.2.1")

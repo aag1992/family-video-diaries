@@ -8,23 +8,30 @@ import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-import services.video.VideoUploadManager;
+import services.video.segmenting.VideoSegmentingService;
+import services.video.upload.VideoUploadService;
 import services.cloud.gcloud.GCloudAdapter;
+import services.video.config.EnvironmentConfig;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 import static services.video.consts.VideoUploadConsts.*;
 
-public class UploadController extends Controller {
+public class VideoController extends Controller {
 
     private final GCloudAdapter gCloudAdapter;
-    private final VideoUploadManager videoUploadManager;
+    private final VideoUploadService videoUploadManager;
+    private final VideoSegmentingService segmentingManager;
+
+    private final EnvironmentConfig environmentConfig;
 
     @Inject
-    public UploadController(GCloudAdapter gCloudAdapter, VideoUploadManager videoUploadManager) {
+    public VideoController(GCloudAdapter gCloudAdapter, VideoUploadService videoUploadManager, EnvironmentConfig environmentConfig, VideoSegmentingService segmentingManager) {
         this.gCloudAdapter = gCloudAdapter;
         this.videoUploadManager = videoUploadManager;
+        this.environmentConfig = environmentConfig;
+        this.segmentingManager = segmentingManager;
     }
 
     @BodyParser.Of(value = BodyParser.MultipartFormData.class)
@@ -34,7 +41,7 @@ public class UploadController extends Controller {
             gCloudAdapter.upload(uploadDetails);
             return CompletableFuture.completedFuture(ok("Successfully uploaded file"));
         } catch (Exception e) {
-            Logger.of(UploadController.class).error("Error " + e.getClass() + " while trying to upload video " + e.getMessage());
+            Logger.of(VideoController.class).error("Error " + e.getClass() + " while trying to upload video " + e.getMessage());
             return CompletableFuture.completedFuture(internalServerError("Error " + e.getClass() + " while trying to upload video " + e.getMessage()));
         }
     }
@@ -42,11 +49,12 @@ public class UploadController extends Controller {
     @BodyParser.Of(value = BodyParser.MultipartFormData.class)
     public CompletionStage<Result> segmentVideo(Http.Request request) {
         try {
-            VideoSegmentingDetails uploadDetails = videoUploadManager.getVideoSegmentingDetailsFromRequest(request, SEGMENTS);
-            gCloudAdapter.get(uploadDetails);
+            VideoSegmentingDetails segmentingDetails = segmentingManager.getVideoSegmentingDetailsFromRequest(request, SEGMENTS);
+            gCloudAdapter.download(segmentingDetails, environmentConfig.getDownloadTargetName());
+            segmentingManager.segmentVideo(segmentingDetails.getFile(), this.environmentConfig.getDownloadTargetName());
             return CompletableFuture.completedFuture(ok("Successfully segmented video file"));
         } catch (Exception e) {
-            Logger.of(UploadController.class).error("Error " + e.getClass() + " while trying to sgement video " + e.getMessage());
+            Logger.of(VideoController.class).error("Error " + e.getClass() + " while trying to sgement video " + e.getMessage());
             return CompletableFuture.completedFuture(internalServerError("Error " + e.getClass() + " while trying to segment video " + e.getMessage()));
         }
     }

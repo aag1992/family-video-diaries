@@ -11,5 +11,5 @@ GET         /assets/*file         controllers.Assets.versioned(path="/public", f
 
 
 # Video Processing
-POST        /video/upload         controllers.UploadController.uploadVideo(request : Request)
-POST        /video/segment        controllers.UploadController.segmentVideo(request : Request)
+POST        /video/upload         controllers.VideoController.uploadVideo(request : Request)
+POST        /video/segment        controllers.VideoController.segmentVideo(request : Request)
