@@ -1,4 +1,4 @@
-package model.video.upload;
+package model.video.segments;
 
 import org.javatuples.KeyValue;
 

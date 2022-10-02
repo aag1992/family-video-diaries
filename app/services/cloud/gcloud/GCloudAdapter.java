@@ -4,7 +4,7 @@ package services.cloud.gcloud;
 import com.google.cloud.storage.*;
 import com.google.inject.Inject;
 import exceptions.VideoNotUploadedException;
-import model.video.upload.VideoSegmentingDetails;
+import model.video.segments.VideoSegmentingDetails;
 import model.video.upload.VideoUploadDetails;
 import play.Logger;
 import services.cloud.gcloud.config.GCloudConfig;

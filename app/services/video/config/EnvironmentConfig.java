@@ -7,13 +7,21 @@ public class EnvironmentConfig {
 
 
     private final String downloadTarget;
+    private final String segmentTargetDir;
+
 
     @Inject
     public EnvironmentConfig(Config configuration) {
         this.downloadTarget = configuration.getString("env.download_target");
+        this.segmentTargetDir = configuration.getString("env.segments_dir");
     }
 
-    public String getDownloadTargetName() {
+    public String getDownloadTarget() {
         return downloadTarget;
     }
+
+    public String getSegmentTargetDirTarget() {
+        return segmentTargetDir;
+    }
+
 }

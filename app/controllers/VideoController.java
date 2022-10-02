@@ -1,7 +1,7 @@
 package controllers;
 
 import com.google.inject.Inject;
-import model.video.upload.VideoSegmentingDetails;
+import model.video.segments.VideoSegmentingDetails;
 import model.video.upload.VideoUploadDetails;
 import play.Logger;
 import play.mvc.BodyParser;
@@ -50,14 +50,12 @@ public class VideoController extends Controller {
     public CompletionStage<Result> segmentVideo(Http.Request request) {
         try {
             VideoSegmentingDetails segmentingDetails = segmentingManager.getVideoSegmentingDetailsFromRequest(request, SEGMENTS);
-            gCloudAdapter.download(segmentingDetails, environmentConfig.getDownloadTargetName());
-            segmentingManager.segmentVideo(segmentingDetails.getFile(), this.environmentConfig.getDownloadTargetName());
+            gCloudAdapter.download(segmentingDetails, environmentConfig.getDownloadTarget());
+            segmentingManager.segmentVideo(segmentingDetails.getFile(), this.environmentConfig.getDownloadTarget(), this.environmentConfig.getSegmentTargetDirTarget());
             return CompletableFuture.completedFuture(ok("Successfully segmented video file"));
         } catch (Exception e) {
             Logger.of(VideoController.class).error("Error " + e.getClass() + " while trying to sgement video " + e.getMessage());
             return CompletableFuture.completedFuture(internalServerError("Error " + e.getClass() + " while trying to segment video " + e.getMessage()));
         }
     }
-
-
 }

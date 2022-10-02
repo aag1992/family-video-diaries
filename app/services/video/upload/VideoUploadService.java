@@ -8,8 +8,6 @@ import play.mvc.Http.MultipartFormData;
 import play.mvc.Http.Request;
 import play.mvc.Http.MultipartFormData.FilePart;
 
-import java.io.File;
-
 import static services.file.FileManager.getFileFromTempFile;
 import static services.video.consts.VideoUploadConsts.*;
 
@@ -20,7 +18,7 @@ public class VideoUploadService {
         if (temporaryFile == null) {
             throw new FileNotFoundException("Expected file in request");
         }
-        if (multipartFormData.asFormUrlEncoded().get(FAMILY_MEMBER_NAME).length == 0 || multipartFormData.asFormUrlEncoded().get(YEAR).length == 0) {
+        if (!necessaryFieldsAreInForm(multipartFormData)) {
             throw new MissingFieldsInRequestException("Missing a necessary field in request");
         }
 
@@ -30,5 +28,10 @@ public class VideoUploadService {
                 multipartFormData.asFormUrlEncoded().get(YEAR)[0]);
     }
 
+    private boolean necessaryFieldsAreInForm(MultipartFormData<TemporaryFile> multipartFormData) {
+        return (multipartFormData.asFormUrlEncoded() != null
+                && multipartFormData.asFormUrlEncoded().get(FAMILY_MEMBER_NAME).length != 0
+                && multipartFormData.asFormUrlEncoded().get(YEAR).length != 0);
+    }
 
 }
