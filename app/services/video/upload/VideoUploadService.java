@@ -9,7 +9,7 @@ import play.mvc.Http.Request;
 import play.mvc.Http.MultipartFormData.FilePart;
 
 import static services.file.FileManager.getFileFromTempFile;
-import static services.video.consts.VideoUploadConsts.*;
+import static services.video.consts.VideoManipulationConsts.*;
 
 public class VideoUploadService {
     public VideoUploadDetails getUploadDetailsFromRequest(Request request, String fileKey) throws FileNotFoundException, MissingFieldsInRequestException {

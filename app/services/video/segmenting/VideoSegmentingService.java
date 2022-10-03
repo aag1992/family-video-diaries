@@ -22,15 +22,15 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static services.file.FileManager.getFileFromTempFile;
-import static services.video.consts.VideoUploadConsts.PATH;
+import static services.video.consts.VideoManipulationConsts.PATH;
 
 public class VideoSegmentingService {
 
-    private final FFmpegExecutor fFmpegExecutor;
+    private final FFmpegExecutor ffmpegExecutor;
 
     @Inject
     public VideoSegmentingService(FFmpegExecutor fFmpegExecutor) {
-        this.fFmpegExecutor = fFmpegExecutor;
+        this.ffmpegExecutor = fFmpegExecutor;
     }
 
     public VideoSegmentingDetails getVideoSegmentingDetailsFromRequest(Http.Request request, String fileKey) throws FileNotFoundException, MissingFieldsInRequestException {
@@ -55,15 +55,15 @@ public class VideoSegmentingService {
 
         for (SegmentsRow segmentRow : segmentRows) {
             Logger.of(VideoSegmentingDetails.class).info("Getting builder");
-            FFmpegBuilder builder = getFFmpegBuilder(fullVideoPath, segmentRow, segmentTargetDirTarget);
+            FFmpegBuilder builder = getFfmpegBuilder(fullVideoPath, segmentRow, segmentTargetDirTarget);
             Logger.of(VideoSegmentingDetails.class).info("Got builder");
             final ProgressListener progressListener = progress -> Logger.of(progress.toString());
-            fFmpegExecutor.createJob(builder, progressListener).run();
+            ffmpegExecutor.createJob(builder, progressListener).run();
             Logger.of(VideoSegmentingDetails.class).info("Created ffmpeg job");
         }
     }
 
-    private FFmpegBuilder getFFmpegBuilder(String fullVideoPath, SegmentsRow segmentRow, String segmentTargetDirTarget) {
+    private FFmpegBuilder getFfmpegBuilder(String fullVideoPath, SegmentsRow segmentRow, String segmentTargetDirTarget) {
 
         FFmpegBuilder fFmpegBuilder = new FFmpegBuilder()
                 .overrideOutputFiles(true).addInput(fullVideoPath);
