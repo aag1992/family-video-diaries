@@ -3,20 +3,15 @@ package services.video.joining;
 import com.google.inject.Inject;
 import exceptions.FileNotFoundException;
 import model.video.join.VideoJoiningDetails;
-import model.video.segments.SegmentsRow;
 import model.video.segments.VideoSegmentingDetails;
 import net.bramp.ffmpeg.FFmpegExecutor;
 import net.bramp.ffmpeg.builder.FFmpegBuilder;
 import net.bramp.ffmpeg.progress.ProgressListener;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import play.Logger;
 import play.libs.Files;
 import play.mvc.Http;
 
 import java.io.File;
-import java.util.concurrent.TimeUnit;
 
 import static services.file.FileManager.getFileFromTempFile;
 
@@ -28,7 +23,6 @@ public class VideoJoiningService {
     public VideoJoiningService(FFmpegExecutor fFmpegExecutor) {
         this.ffmpegExecutor = fFmpegExecutor;
     }
-
 
     public VideoJoiningDetails getJoiningDetailsFromRequest(Http.Request request, String fileKey) throws FileNotFoundException {
         Http.MultipartFormData<Files.TemporaryFile> multipartFormData = request.body().asMultipartFormData();

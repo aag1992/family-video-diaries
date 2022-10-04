@@ -10,7 +10,7 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import services.video.joining.VideoJoiningService;
-import services.video.segmenting.VideoSegmentingService;
+import services.video.segmentation.VideoSegmentationService;
 import services.video.upload.VideoUploadService;
 import services.cloud.gcloud.GCloudAdapter;
 import services.video.config.EnvironmentConfig;
@@ -24,21 +24,21 @@ public class VideoController extends Controller {
 
     private final GCloudAdapter gCloudAdapter;
     private final VideoUploadService videoUploadManager;
-    private final VideoSegmentingService segmentingManager;
+    private final VideoSegmentationService segmentationService;
     private final VideoJoiningService videoJoiningService;
 
     private final EnvironmentConfig environmentConfig;
 
     @Inject
     public VideoController(GCloudAdapter gCloudAdapter,
-                           VideoUploadService videoUploadManager,
                            EnvironmentConfig environmentConfig,
-                           VideoSegmentingService segmentingManager,
+                           VideoUploadService videoUploadManager,
+                           VideoSegmentationService segmentationService,
                            VideoJoiningService videoJoiningService) {
         this.gCloudAdapter = gCloudAdapter;
         this.videoUploadManager = videoUploadManager;
         this.environmentConfig = environmentConfig;
-        this.segmentingManager = segmentingManager;
+        this.segmentationService = segmentationService;
         this.videoJoiningService = videoJoiningService;
     }
 
@@ -57,9 +57,9 @@ public class VideoController extends Controller {
     @BodyParser.Of(value = BodyParser.MultipartFormData.class)
     public CompletionStage<Result> segmentVideo(Http.Request request) {
         try {
-            VideoSegmentingDetails segmentingDetails = segmentingManager.getVideoSegmentingDetailsFromRequest(request, SEGMENTS_FILE_KEY);
+            VideoSegmentingDetails segmentingDetails = segmentationService.getVideoSegmentationDetailsFromRequest(request, SEGMENTS_FILE_KEY);
             gCloudAdapter.download(segmentingDetails, environmentConfig.getDownloadTarget());
-            segmentingManager.segmentVideo(segmentingDetails.getFile(), this.environmentConfig.getDownloadTarget(), this.environmentConfig.getSegmentTargetDirTarget());
+            segmentationService.segmentVideo(segmentingDetails.getFile(), this.environmentConfig.getDownloadTarget(), this.environmentConfig.getSegmentTargetDirTarget());
             return CompletableFuture.completedFuture(ok("Successfully segmented video file"));
         } catch (Exception e) {
             Logger.of(VideoController.class).error("Error " + e.getClass() + " while trying to sgement video " + e.getMessage());

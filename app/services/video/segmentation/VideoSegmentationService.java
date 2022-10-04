@@ -1,4 +1,4 @@
-package services.video.segmenting;
+package services.video.segmentation;
 
 import com.google.inject.Inject;
 import com.opencsv.bean.CsvToBeanBuilder;
@@ -24,16 +24,16 @@ import java.util.concurrent.TimeUnit;
 import static services.file.FileManager.getFileFromTempFile;
 import static services.video.consts.VideoManipulationConsts.PATH;
 
-public class VideoSegmentingService {
+public class VideoSegmentationService {
 
     private final FFmpegExecutor ffmpegExecutor;
 
     @Inject
-    public VideoSegmentingService(FFmpegExecutor fFmpegExecutor) {
+    public VideoSegmentationService(FFmpegExecutor fFmpegExecutor) {
         this.ffmpegExecutor = fFmpegExecutor;
     }
 
-    public VideoSegmentingDetails getVideoSegmentingDetailsFromRequest(Http.Request request, String fileKey) throws FileNotFoundException, MissingFieldsInRequestException {
+    public VideoSegmentingDetails getVideoSegmentationDetailsFromRequest(Http.Request request, String fileKey) throws FileNotFoundException, MissingFieldsInRequestException {
         Http.MultipartFormData<Files.TemporaryFile> multipartFormData = request.body().asMultipartFormData();
         Http.MultipartFormData.FilePart<Files.TemporaryFile> temporaryFile = multipartFormData.getFile(fileKey);
         if (temporaryFile == null) {
@@ -51,7 +51,7 @@ public class VideoSegmentingService {
 
     public void segmentVideo(File segmentsFile, String fullVideoPath, String segmentTargetDirTarget) throws java.io.FileNotFoundException {
         Logger.of("Starting to segment video");
-        List<SegmentsRow> segmentRows = getSegmentsFromSegmentsFile(segmentsFile);
+        List<SegmentsRow> segmentRows = getSegmentsFromSegmentationFile(segmentsFile);
 
         for (SegmentsRow segmentRow : segmentRows) {
             Logger.of(VideoSegmentingDetails.class).info("Getting builder");
@@ -77,8 +77,8 @@ public class VideoSegmentingService {
         return fFmpegBuilder;
     }
 
-    private List<SegmentsRow> getSegmentsFromSegmentsFile(File segmentsFile) throws java.io.FileNotFoundException {
-        return new CsvToBeanBuilder(new FileReader(segmentsFile))
+    private List<SegmentsRow> getSegmentsFromSegmentationFile(File segmentationFile) throws java.io.FileNotFoundException {
+        return new CsvToBeanBuilder(new FileReader(segmentationFile))
                 .withType(SegmentsRow.class)
                 .build()
                 .parse();
