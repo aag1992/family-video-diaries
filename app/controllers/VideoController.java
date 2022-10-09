@@ -9,6 +9,7 @@ import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import services.video.filtering.VideoFilteringService;
 import services.video.joining.VideoJoiningService;
 import services.video.segmentation.VideoSegmentationService;
 import services.video.upload.VideoUploadService;
@@ -24,9 +25,10 @@ public class VideoController extends Controller {
 
     private final GCloudAdapter gCloudAdapter;
     private final VideoUploadService videoUploadManager;
+
+    private final VideoFilteringService videoFilteringService;
     private final VideoSegmentationService segmentationService;
     private final VideoJoiningService videoJoiningService;
-
     private final EnvironmentConfig environmentConfig;
 
     @Inject
@@ -34,12 +36,25 @@ public class VideoController extends Controller {
                            EnvironmentConfig environmentConfig,
                            VideoUploadService videoUploadManager,
                            VideoSegmentationService segmentationService,
+                           VideoFilteringService filteringService,
                            VideoJoiningService videoJoiningService) {
         this.gCloudAdapter = gCloudAdapter;
         this.videoUploadManager = videoUploadManager;
+        this.videoFilteringService = filteringService;
         this.environmentConfig = environmentConfig;
         this.segmentationService = segmentationService;
         this.videoJoiningService = videoJoiningService;
+    }
+
+    public CompletionStage<Result> segmentsByCondition(java.util.Optional name, java.util.Optional year ) {
+        try {
+//            videoFilteringService.filterWithConditions(gCloudAdapter,name, year);
+            gCloudAdapter.listObjects();
+            return CompletableFuture.completedFuture(ok("Successfully filtered"));
+        } catch (Exception e) {
+            Logger.of(VideoController.class).error("Error " + e.getClass() + " while trying to filter by conditions " + e.getMessage());
+            return CompletableFuture.completedFuture(internalServerError("Error " + e.getClass() + " while trying to filter " + e.getMessage()));
+        }
     }
 
     @BodyParser.Of(value = BodyParser.MultipartFormData.class)
@@ -67,9 +82,8 @@ public class VideoController extends Controller {
         }
     }
 
-
     @BodyParser.Of(value = BodyParser.MultipartFormData.class)
-    public CompletionStage<Result> join(Http.Request request) {
+    public CompletionStage<Result> joinVideos(Http.Request request) {
         try {
             VideoJoiningDetails joiningDetails = videoJoiningService.getJoiningDetailsFromRequest(request, JOIN_FILE_KEY);
             videoJoiningService.joinVideos(joiningDetails.getFile(), environmentConfig.getJoiningTarget());

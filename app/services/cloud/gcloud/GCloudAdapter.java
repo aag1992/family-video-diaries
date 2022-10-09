@@ -1,6 +1,7 @@
 package services.cloud.gcloud;
 
 
+import com.google.api.gax.paging.Page;
 import com.google.cloud.storage.*;
 import com.google.inject.Inject;
 import exceptions.VideoNotUploadedException;
@@ -42,6 +43,15 @@ public class GCloudAdapter implements iCloudService {
             blob.downloadTo(Paths.get(targetPath));
         } else {
             throw new VideoNotUploadedException("Failed to find video in cloud");
+        }
+    }
+
+    public void listObjects() {
+        Storage storage = StorageOptions.newBuilder().setProjectId(this.config.getProjectId()).build().getService();
+        Page<Blob> blobs = storage.list(this.config.getBucket());
+
+        for (Blob blob : blobs.iterateAll()) {
+            System.out.println(blob.getName());
         }
     }
 }
