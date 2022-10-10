@@ -14,4 +14,4 @@ GET         /assets/*file         controllers.Assets.versioned(path="/public", f
 POST        /video/upload         controllers.VideoController.uploadVideo(request : Request)
 POST        /video/segment        controllers.VideoController.segmentVideo(request : Request)
 PUT         /video/join           controllers.VideoController.joinVideos(request : Request)
-GET         /video/get            controllers.VideoController.segmentsByCondition(name: java.util.Optional[String], year: java.util.Optional[Int] )
+GET         /video/get            controllers.VideoController.segmentsByCondition(name ?= "" , year ?= "", fileName ?="" )

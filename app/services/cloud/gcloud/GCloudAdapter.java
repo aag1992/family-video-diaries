@@ -14,6 +14,7 @@ import services.cloud.iCloudService;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Objects;
 
 
 public class GCloudAdapter implements iCloudService {
@@ -46,12 +47,14 @@ public class GCloudAdapter implements iCloudService {
         }
     }
 
-    public void listObjects() {
+    public Page<Blob> listObjects(String prefix) {
         Storage storage = StorageOptions.newBuilder().setProjectId(this.config.getProjectId()).build().getService();
-        Page<Blob> blobs = storage.list(this.config.getBucket());
-
-        for (Blob blob : blobs.iterateAll()) {
-            System.out.println(blob.getName());
+        if(Objects.equals(prefix, "")) {
+            return storage.list(
+                    this.config.getBucket());
         }
+        return storage.list(
+                this.config.getBucket(),
+                Storage.BlobListOption.prefix(prefix + "/"));
     }
 }

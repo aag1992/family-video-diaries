@@ -1,5 +1,7 @@
 package controllers;
 
+import com.google.api.gax.paging.Page;
+import com.google.cloud.storage.Blob;
 import com.google.inject.Inject;
 import model.video.join.VideoJoiningDetails;
 import model.video.segments.VideoSegmentingDetails;
@@ -9,13 +11,14 @@ import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import services.cloud.gcloud.GCloudAdapter;
+import services.video.config.EnvironmentConfig;
 import services.video.filtering.VideoFilteringService;
 import services.video.joining.VideoJoiningService;
 import services.video.segmentation.VideoSegmentationService;
 import services.video.upload.VideoUploadService;
-import services.cloud.gcloud.GCloudAdapter;
-import services.video.config.EnvironmentConfig;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -25,7 +28,6 @@ public class VideoController extends Controller {
 
     private final GCloudAdapter gCloudAdapter;
     private final VideoUploadService videoUploadManager;
-
     private final VideoFilteringService videoFilteringService;
     private final VideoSegmentationService segmentationService;
     private final VideoJoiningService videoJoiningService;
@@ -46,11 +48,11 @@ public class VideoController extends Controller {
         this.videoJoiningService = videoJoiningService;
     }
 
-    public CompletionStage<Result> segmentsByCondition(java.util.Optional name, java.util.Optional year ) {
+    public CompletionStage<Result> segmentsByCondition(String name, String year, String fileName ) {
         try {
-//            videoFilteringService.filterWithConditions(gCloudAdapter,name, year);
-            gCloudAdapter.listObjects();
-            return CompletableFuture.completedFuture(ok("Successfully filtered"));
+            Page<Blob> blobs = gCloudAdapter.listObjects(name);
+            List<String> files = videoFilteringService.filterWithConditions(blobs, year,fileName, environmentConfig.getSegmentTargetDirTarget());
+            return CompletableFuture.completedFuture(ok(String.join(",", files)));
         } catch (Exception e) {
             Logger.of(VideoController.class).error("Error " + e.getClass() + " while trying to filter by conditions " + e.getMessage());
             return CompletableFuture.completedFuture(internalServerError("Error " + e.getClass() + " while trying to filter " + e.getMessage()));
